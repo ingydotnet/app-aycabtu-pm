@@ -1,0 +1,4 @@
+#!/usr/bin/perl
+
+use App::AYCABTU;
+App::AYCABTU->run(@ARGV);

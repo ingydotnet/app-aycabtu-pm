@@ -7,8 +7,11 @@ manifest_skip;
 version_check;
 ack_xxx;
 
+use_gloom 'App::AYCABTU::OO';
+
 requires 'YAML::XS';
 
 install_script 'bin/aycabtu';
+use_testml;
 
 WriteAll;

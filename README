@@ -2,13 +2,15 @@ NAME
     App::AYCABTU - All Your Codes Are Belong To Us
 
 SYNOPSIS
-        > aycabtu
+        > aycabtu --help
 
 DESCRIPTION
-    This module installs a program called "aycabtu", that can be used to
+    This module installs a program called aycabtu, that can be used to
     manage all of the code repositories that you are interested in.
 
 RESOURCES
+    CPAN: <http://search.cpan.org/dist/App-AYCABTU/>
+
     GitHub: <http://github.com/ingydotnet/app-aycabtu-pm>
 
 AUTHOR

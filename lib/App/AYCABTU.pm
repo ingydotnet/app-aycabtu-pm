@@ -2,10 +2,11 @@ package App::AYCABTU;
 use App::AYCABTU::OO -base;
 use 5.008003;
 
-our $VERSION = '0.10';
+our $VERSION = '0.01';
 
-use YAML::XS;
 use Getopt::Long;
+use YAML::XS;
+use Capture::Tiny 'capture';
 
 has config => [];
 
@@ -22,11 +23,12 @@ sub run {
     $self->get_options(@_);
     $self->read_config();
     $self->select_repos();
-    my $action = "action_" . $self->action;
-    die "Can't perform action '" . $self->action . "'"
-        unless $self->can($action);
+    my $action = $self->action;
+    my $method = "action_$action";
+    print "Can't perform action '$action'\n" && return
+        unless $self->can($method);
     for my $entry (@{$self->repos}) {
-        $self->$action($entry);
+        $self->$method($entry);
     }
 }
 
@@ -43,12 +45,12 @@ sub get_options {
         },
         "names=s" => sub {
             my $names = $_[1] or return;
-            $self->names([split ',', $names]);
+            push @{$self->names}, split ',', $names;
         },
         "all" => sub { $self->all(1) },
         "help" => \&help,
     );
-    die "Can't locate aybabtu config file '${\ $self->file}'. Use --file=... option"
+    print "Can't locate aybabtu config file '${\ $self->file}'. Use --file=... option\n" and exit
         if not -e $self->file;
 }
 
@@ -64,13 +66,22 @@ sub read_config {
     for my $entry (@$config) {
         my $repo = $entry->{repo}
             or die "No 'repo' field for entry $count";
+
         $entry->{_num} = $count++;
+
+        $entry->{name} ||= '';
         if ($repo =~ /.*\/(.*).git$/) {
             $entry->{name} = $1;
         }
-        else {
-            $entry->{name} = '';
+
+        $entry->{type} ||= '';
+        if ($repo =~ /\.git$/) {
+            $entry->{type} = 'git';
         }
+        elsif ($repo =~ /svn/) {
+            $entry->{type} = 'svn';
+        }
+
         $entry->{tags} ||= '';
     }
 }
@@ -114,11 +125,36 @@ OUTER:
 sub action_update {
     my $self = shift;
     my $entry = shift;
+    my ($repo, $name, $type) = @{$entry}{qw(repo name type)};
+    print "Can't update $repo. No name.\n" && return
+        unless $name;
+    print "Can't update $name. Unknown type.\n" && return
+        unless $type;
+    print "Can't update $name. Type $type not yet supported.\n" && return
+        unless $type eq 'git';
+    print "Updating $name... ";
+    $self->update_git($entry);
+    print "\n";
+}
+
+sub update_git {
+    my $self = shift;
+    my $entry = shift;
+    my ($repo, $name) = @{$entry}{qw(repo name)};
+    if (-d $name and -d "$name/.git") {
+        my ($o, $e) = capture { system("cd $name; git pull") };
+        print $o, $e unless $o eq "Already up-to-date.\n";
+        print "Done";
+    }
+    else {
+        print "Skipped";
+    }
 }
 
 sub action_status {
     my $self = shift;
     my $entry = shift;
+    print "Action 'status' not yet implemented";
 }
 
 sub action_list {
@@ -165,6 +201,17 @@ App::AYCABTU - All Your Codes Are Belong To Us
 
 This module installs a program called L<aycabtu>, that can be used to
 manage all of the code repositories that you are interested in.
+
+=head1 STATUS
+
+This is a very early release. Only the a couple features are
+implemented, and somewhat poorly.
+
+See L<http://github.com/ingydotnet/aycabt-
+ingydotnet/blob/master/AYCABTU> for an example of how to
+configure AYCABTU.
+
+Stay tuned. Things should be much better soon.
 
 =head1 RESOURCES
 

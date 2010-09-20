@@ -9,7 +9,9 @@ ack_xxx;
 
 use_gloom 'App::AYCABTU::OO';
 
+requires 'Getopt::Long';
 requires 'YAML::XS';
+requires 'Capture::Tiny';
 
 install_script 'bin/aycabtu';
 use_testml;

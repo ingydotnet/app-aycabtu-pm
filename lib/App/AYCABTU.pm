@@ -133,11 +133,11 @@ sub action_update {
     print "Can't update $name. Type $type not yet supported.\n" && return
         unless $type eq 'git';
     print "Updating $name... ";
-    $self->update_git($entry);
+    $self->git_update($entry);
     print "\n";
 }
 
-sub update_git {
+sub git_update {
     my $self = shift;
     my $entry = shift;
     my ($repo, $name) = @{$entry}{qw(repo name)};
@@ -160,7 +160,9 @@ sub action_status {
 sub action_list {
     my $self = shift;
     my $entry = shift;
-    print YAML::XS::Dump($entry);
+    my ($num, $repo, $name, $type, $tags) = @{$entry}{qw(_num repo name type $tags)};
+    printf "%3d) %-25s %-4s %-50s\n", $num, $name, $type, $repo;
+    print "     tags: $tags\n" if $tags;
 }
 
 sub help {

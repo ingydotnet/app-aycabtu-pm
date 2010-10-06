@@ -9,8 +9,8 @@ DESCRIPTION
     manage all of the code repositories that you are interested in.
 
 STATUS
-    This is a very early release. Only the a couple features are
-    implemented, and somewhat poorly.
+    This is a very early release. Only a couple features are implemented,
+    and somewhat poorly.
 
     See "/github.com/ingydotnet/aycabt- ingydotnet/blob/master/AYCABTU" in
     http: for an example of how to configure AYCABTU.

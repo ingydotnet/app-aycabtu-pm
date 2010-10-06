@@ -14,6 +14,6 @@ requires 'YAML::XS';
 requires 'Capture::Tiny';
 
 install_script 'bin/aycabtu';
-use_testml;
+# use_testml;
 
 WriteAll;

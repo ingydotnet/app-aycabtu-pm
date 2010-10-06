@@ -2,7 +2,7 @@ package App::AYCABTU;
 use App::AYCABTU::OO -base;
 use 5.008003;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use Getopt::Long;
 use YAML::XS;
@@ -15,6 +15,7 @@ has action => 'update';
 has tags => [];
 has names => [];
 has all => 0;
+has args => [];
 
 has repos => [];
 
@@ -43,13 +44,16 @@ sub get_options {
             my $tags = $_[1] or return;
             push @{$self->tags}, [split ',', $tags];
         },
-        "names=s" => sub {
-            my $names = $_[1] or return;
-            push @{$self->names}, split ',', $names;
-        },
         "all" => sub { $self->all(1) },
         "help" => \&help,
     );
+    my $names = [
+        map {
+            s!/$!!;
+            $_;
+        } @ARGV
+    ];
+    $self->names($names);
     print "Can't locate aybabtu config file '${\ $self->file}'. Use --file=... option\n" and exit
         if not -e $self->file;
 }
@@ -141,7 +145,13 @@ sub git_update {
     my $self = shift;
     my $entry = shift;
     my ($repo, $name) = @{$entry}{qw(repo name)};
-    if (-d $name and -d "$name/.git") {
+    if (not -d $name) {
+        my $cmd = "git clone $repo $name";
+        my ($o, $e) = capture { system($cmd) };
+        print $o, $e if $e =~ /\S/;
+        print "Done";
+    }
+    elsif (-d "$name/.git") {
         my ($o, $e) = capture { system("cd $name; git pull") };
         print $o, $e unless $o eq "Already up-to-date.\n";
         print "Done";
@@ -168,7 +178,7 @@ sub action_list {
 sub help {
     print <<'...';
 Usage:
-    aycabtu [ options ]
+    aycabtu [ options ] [ names ]
     
 Options:
     --file=file         # aycabtu config file. Default: 'AYCABTU'
@@ -181,7 +191,13 @@ Options:
     --all               # Use all the repos in the config file
     --tags=tags         # Select repos matching all the tags
                         # Option can be used more than once
-    --names=names       # The names of the repos to select
+
+Names:
+
+    A list of the names to to select. You can use multiple names and
+    file globbing, like this:
+
+        aycabtu --update foo-repo bar-*-repo
 
 ...
     exit;
@@ -206,8 +222,8 @@ manage all of the code repositories that you are interested in.
 
 =head1 STATUS
 
-This is a very early release. Only the a couple features are
-implemented, and somewhat poorly.
+This is a very early release. Only a couple features are implemented,
+and somewhat poorly.
 
 See L<http://github.com/ingydotnet/aycabt-
 ingydotnet/blob/master/AYCABTU> for an example of how to

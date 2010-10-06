@@ -1,4 +1,10 @@
 ---
+version: 0.02
+date:    Tue Oct  5 21:30:41 PDT 2010
+changes:
+- Add git clone support
+- Add names selection
+---
 version: 0.01
 date:    Sat Sep 18 00:36:35 PDT 2010
 changes:

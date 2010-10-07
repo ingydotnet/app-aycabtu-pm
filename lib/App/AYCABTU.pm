@@ -15,6 +15,7 @@ has action => 'list';
 has tags => [];
 has names => [];
 has all => 0;
+has quiet => 0;
 has verbose => 0;
 has args => [];
 
@@ -46,13 +47,20 @@ sub get_options {
             push @{$self->tags}, [split ',', $tags];
         },
         'all' => sub { $self->all(1) },
+        'quiet' => sub { $self->quiet(1) },
         'verbose' => sub { $self->verbose(1) },
         'help' => \&help,
     );
+    no warnings;
     my $names = [
         map {
             s!/$!!;
-            $_;
+            if (/^(\d+)-(\d+)?$/) {
+                ($1..$2);
+            }
+            else {
+                ($_);
+            }
         } @ARGV
     ];
     $self->names($names);
@@ -110,8 +118,9 @@ OUTER:
             push @$repos, $entry;
             next;
         }
+        my ($num, $name) = @{$entry}{qw(_num name)};
         if (@$names) {
-            if (grep {$_ eq $entry->{name}} @$names) {
+            if (grep {$_ eq $name or $_ eq $num} @$names) {
                 push @$repos, $entry;
                 next;
             }

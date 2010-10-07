@@ -132,8 +132,8 @@ sub action_update {
     my $self = shift;
     my $entry = shift;
     $self->_check(update => $entry) or return;
-    my ($name) = @{$entry}{qw(name)};
-    print "Updating $name... ";
+    my ($num, $name) = @{$entry}{qw(_num name)};
+    print "$num) Updating $name... ";
     $self->git_update($entry);
     print "\n";
 }
@@ -142,8 +142,8 @@ sub action_status {
     my $self = shift;
     my $entry = shift;
     $self->_check('check status' => $entry) or return;
-    my ($name) = @{$entry}{qw(name)};
-    print "Status for $name... ";
+    my ($num, $name) = @{$entry}{qw(_num name)};
+    print "$num) Status for $name... ";
     $self->git_status($entry);
     print "\n";
 }

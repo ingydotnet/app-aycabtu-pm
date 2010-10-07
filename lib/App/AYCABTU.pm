@@ -11,10 +11,11 @@ use Capture::Tiny 'capture';
 has config => [];
 
 has file => 'AYCABTU';
-has action => 'update';
+has action => 'list';
 has tags => [];
 has names => [];
 has all => 0;
+has verbose => 0;
 has args => [];
 
 has repos => [];
@@ -36,16 +37,17 @@ sub run {
 sub get_options {
     my $self = shift;
     GetOptions(
-        "update" => sub { $self->action('update') },
-        "status" => sub { $self->action('status') },
-        "list" => sub { $self->action('list') },
-        "file=s" => sub { $self->file($_[1]) },
-        "tags=s" => sub {
+        'update' => sub { $self->action('update') },
+        'status' => sub { $self->action('status') },
+        'list' => sub { $self->action('list') },
+        'file=s' => sub { $self->file($_[1]) },
+        'tags=s' => sub {
             my $tags = $_[1] or return;
             push @{$self->tags}, [split ',', $tags];
         },
-        "all" => sub { $self->all(1) },
-        "help" => \&help,
+        'all' => sub { $self->all(1) },
+        'verbose' => sub { $self->verbose(1) },
+        'help' => \&help,
     );
     my $names = [
         map {
@@ -129,16 +131,35 @@ OUTER:
 sub action_update {
     my $self = shift;
     my $entry = shift;
-    my ($repo, $name, $type) = @{$entry}{qw(repo name type)};
-    print "Can't update $repo. No name.\n" && return
-        unless $name;
-    print "Can't update $name. Unknown type.\n" && return
-        unless $type;
-    print "Can't update $name. Type $type not yet supported.\n" && return
-        unless $type eq 'git';
+    $self->_check(update => $entry) or return;
+    my ($name) = @{$entry}{qw(name)};
     print "Updating $name... ";
     $self->git_update($entry);
     print "\n";
+}
+
+sub action_status {
+    my $self = shift;
+    my $entry = shift;
+    $self->_check('check status' => $entry) or return;
+    my ($name) = @{$entry}{qw(name)};
+    print "Status for $name... ";
+    $self->git_status($entry);
+    print "\n";
+}
+
+sub _check {
+    my $self = shift;
+    my $action = shift;
+    my $entry = shift;
+    my ($num, $repo, $name, $type) = @{$entry}{qw(_num repo name type)};
+    print "Can't $action $num) $repo. No name.\n" && return
+        unless $name;
+    print "Can't $action $num) $name. Unknown type.\n" && return
+        unless $type;
+    print "Can't $action $num) $name. Type $type not yet supported.\n" && return
+        unless $type eq 'git';
+    return 1;
 }
 
 sub git_update {
@@ -153,7 +174,7 @@ sub git_update {
     }
     elsif (-d "$name/.git") {
         my ($o, $e) = capture { system("cd $name; git pull") };
-        print $o, $e unless $o eq "Already up-to-date.\n";
+        print "\n$o$e" unless $o eq "Already up-to-date.\n";
         print "Done";
     }
     else {
@@ -161,10 +182,28 @@ sub git_update {
     }
 }
 
-sub action_status {
+sub git_status {
     my $self = shift;
     my $entry = shift;
-    print "Action 'status' not yet implemented";
+    my ($repo, $name) = @{$entry}{qw(repo name)};
+    if (not -d $name) {
+        print "No local repository";
+    }
+    elsif (-d "$name/.git") {
+        my ($o, $e) = capture { system("cd $name; git status") };
+        if ($o =~ /^nothing to commit/m and
+            $o !~ /Your branch is ahead/ and
+            not $e
+        ) {
+            print "OK";
+        }
+        else {
+            print "\n$o$e";
+        }
+    }
+    else {
+        print "Skipped";
+    }
 }
 
 sub action_list {

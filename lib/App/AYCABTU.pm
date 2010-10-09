@@ -237,10 +237,15 @@ sub git_status {
     elsif (-d "$name/.git") {
         my ($o, $e) = capture { system("cd $name; git status") };
         if ($o =~ /^nothing to commit/m and
-            $o !~ /Your branch is ahead/ and
             not $e
         ) {
-            $normal = "OK";
+            if ($o =~ /Your branch is ahead .* by (\d+) /) {
+                $quiet = "Ahead by $1";
+                $verbose = "\n$o$e";
+            }
+            else {
+                $normal = "OK";
+            }
         }
         else {
             $quiet = "Dirty";

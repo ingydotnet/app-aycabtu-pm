@@ -21,6 +21,8 @@ has args => [];
 
 has repos => [];
 
+my ($prefix, $error, $quiet, $normal, $verbose);
+
 sub run {
     my $self = shift;
     $self->get_options(@_);
@@ -28,10 +30,20 @@ sub run {
     $self->select_repos();
     my $action = $self->action;
     my $method = "action_$action";
-    print "Can't perform action '$action'\n" && return
+    die "Can't perform action '$action'\n"
         unless $self->can($method);
     for my $entry (@{$self->repos}) {
+        ($prefix, $error, $quiet, $normal, $verbose) = ('') x 5;
         $self->$method($entry);
+        $verbose ||= $normal;
+        $normal ||= $quiet;
+        my $msg =
+            $error ? $error :
+            $self->verbose ? $verbose :
+            $self->quiet ? $quiet :
+            $normal;
+        $msg = "$prefix$msg\n" if $msg;
+        print STDOUT $msg;
     }
 }
 
@@ -64,7 +76,7 @@ sub get_options {
         } @ARGV
     ];
     $self->names($names);
-    print "Can't locate aybabtu config file '${\ $self->file}'. Use --file=... option\n" and exit
+    die "Can't locate aybabtu config file '${\ $self->file}'. Use --file=... option\n"
         if not -e $self->file;
 }
 
@@ -142,9 +154,8 @@ sub action_update {
     my $entry = shift;
     $self->_check(update => $entry) or return;
     my ($num, $name) = @{$entry}{qw(_num name)};
-    print "$num) Updating $name... ";
+    $prefix = "$num) Updating $name... ";
     $self->git_update($entry);
-    print "\n";
 }
 
 sub action_status {
@@ -152,9 +163,18 @@ sub action_status {
     my $entry = shift;
     $self->_check('check status' => $entry) or return;
     my ($num, $name) = @{$entry}{qw(_num name)};
-    print "$num) Status for $name... ";
+    $prefix = "$num) Status for $name... ";
     $self->git_status($entry);
-    print "\n";
+}
+
+sub action_list {
+    my $self = shift;
+    my $entry = shift;
+    my ($num, $repo, $name, $type, $tags) = @{$entry}{qw(_num repo name type $tags)};
+    $prefix = "$num) ";
+    $quiet = $name;
+    $normal = sprintf " %-25s %-4s %-50s", $name, $type, $repo;
+    $verbose = "$normal\n    tags: " . join ' ', @$tags;
 }
 
 sub _check {
@@ -162,12 +182,18 @@ sub _check {
     my $action = shift;
     my $entry = shift;
     my ($num, $repo, $name, $type) = @{$entry}{qw(_num repo name type)};
-    print "Can't $action $num) $repo. No name.\n" && return
-        unless $name;
-    print "Can't $action $num) $name. Unknown type.\n" && return
-        unless $type;
-    print "Can't $action $num) $name. Type $type not yet supported.\n" && return
-        unless $type eq 'git';
+    if (not $name) {
+        $error = "Can't $action $repo. No name.";
+        return;
+    }
+    if (not $type) {
+        $error = "Can't $action $name. Unknown type.";
+        return;
+    }
+    if ($type ne 'git') {
+        $error = "Can't $action $name. Type $type not yet supported.";
+        return;
+    }
     return 1;
 }
 
@@ -178,16 +204,26 @@ sub git_update {
     if (not -d $name) {
         my $cmd = "git clone $repo $name";
         my ($o, $e) = capture { system($cmd) };
-        print $o, $e if $e =~ /\S/;
-        print "Done";
+        if ($e =~ /\S/) {
+            $quiet = 'Error';
+            $verbose = "\n$o$e";
+        }
+        else {
+            $normal = 'Done';
+        }
     }
     elsif (-d "$name/.git") {
         my ($o, $e) = capture { system("cd $name; git pull") };
-        print "\n$o$e" unless $o eq "Already up-to-date.\n";
-        print "Done";
+        if ($o eq "Already up-to-date.\n") {
+            $normal = "Already up to date";
+        }
+        else {
+            $quiet = "Updated";
+            $verbose = "\n$o$e";
+        }
     }
     else {
-        print "Skipped";
+        $quiet = "Skipped";
     }
 }
 
@@ -196,7 +232,7 @@ sub git_status {
     my $entry = shift;
     my ($repo, $name) = @{$entry}{qw(repo name)};
     if (not -d $name) {
-        print "No local repository";
+        $error = "No local repository";
     }
     elsif (-d "$name/.git") {
         my ($o, $e) = capture { system("cd $name; git status") };
@@ -204,27 +240,20 @@ sub git_status {
             $o !~ /Your branch is ahead/ and
             not $e
         ) {
-            print "OK";
+            $normal = "OK";
         }
         else {
-            print "\n$o$e";
+            $quiet = "Dirty";
+            $verbose = "\n$o$e";
         }
     }
     else {
-        print "Skipped";
+        $quiet= "Skipped";
     }
 }
 
-sub action_list {
-    my $self = shift;
-    my $entry = shift;
-    my ($num, $repo, $name, $type, $tags) = @{$entry}{qw(_num repo name type $tags)};
-    printf "%3d) %-25s %-4s %-50s\n", $num, $name, $type, $repo;
-    print "     tags: $tags\n" if $tags;
-}
-
 sub help {
-    print <<'...';
+    print STDOUT <<'...';
 Usage:
     aycabtu [ options ] [ names ]
     

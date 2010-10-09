@@ -170,11 +170,11 @@ sub action_status {
 sub action_list {
     my $self = shift;
     my $entry = shift;
-    my ($num, $repo, $name, $type, $tags) = @{$entry}{qw(_num repo name type $tags)};
+    my ($num, $repo, $name, $type, $tags) = @{$entry}{qw(_num repo name type tags)};
     $prefix = "$num) ";
     $quiet = $name;
     $normal = sprintf " %-25s %-4s %-50s", $name, $type, $repo;
-    $verbose = "$normal\n    tags: " . join ' ', @$tags;
+    $verbose = "$normal\n    tags: $tags";
 }
 
 sub _check {

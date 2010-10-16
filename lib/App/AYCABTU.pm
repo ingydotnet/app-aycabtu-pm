@@ -28,6 +28,10 @@ sub run {
     $self->get_options(@_);
     $self->read_config();
     $self->select_repos();
+    if (not @{$self->repos}) {
+        print STDOUT "No repositories selected. Try --all.\n";
+        return;
+    }
     my $action = $self->action;
     my $method = "action_$action";
     die "Can't perform action '$action'\n"
@@ -96,8 +100,11 @@ sub read_config {
         $entry->{_num} = $count++;
 
         $entry->{name} ||= '';
-        if ($repo =~ /.*\/(.*).git$/) {
-            $entry->{name} = $1;
+        if (not $entry->{name} and $repo =~ /.*\/(.*).git$/) {
+            my $name = $1;
+            # XXX This should be configable.
+            $name =~ s/\.wiki$/-wiki/;
+            $entry->{name} = $name;
         }
 
         $entry->{type} ||= '';

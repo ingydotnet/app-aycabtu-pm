@@ -6,6 +6,7 @@ readme_from;
 manifest_skip;
 version_check;
 ack_xxx;
+repository 'git://github.com/ingydotnet/app-aycabtu-pm.git';
 
 use_gloom 'App::AYCABTU::OO';
 

@@ -118,8 +118,14 @@ sub read_config {
 
         my $set = $tags ? { map {($_, 1)} split /[\s\,]+/, $tags } : {};
         my $str = $repo;
+        $str =~ s/\/$//;
+        $str =~ s/\/trunk$//;
         $str =~ s/.*\///;
-        $set->{$_} = 1 for split /[^\w]+/, $str;
+        my $subst = {
+            py => 'python',
+            pm => 'perl',
+        };
+        $set->{$_} = 1 for map {$subst->{$_} || $_} split /[^\w]+/, $str;
         $set->{$type} = 1;
         delete $set->{''};
 

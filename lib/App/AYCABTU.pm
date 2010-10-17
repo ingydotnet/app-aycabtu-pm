@@ -12,6 +12,7 @@ has config => [];
 
 has file => 'AYCABTU';
 has action => 'list';
+has show => '';
 has tags => [];
 has names => [];
 has all => 0;
@@ -29,7 +30,7 @@ sub run {
     $self->read_config();
     $self->select_repos();
     if (not @{$self->repos}) {
-        print STDOUT "No repositories selected. Try --all.\n";
+        print "No repositories selected. Try --all.\n";
         return;
     }
     my $action = $self->action;
@@ -47,38 +48,45 @@ sub run {
             $self->quiet ? $quiet :
             $normal;
         $msg = "$prefix$msg\n" if $msg;
-        print STDOUT $msg;
+        print $msg;
     }
 }
 
 sub get_options {
     my $self = shift;
     GetOptions(
+        'file=s' => sub { $self->file($_[1]) },
+        'verbose' => sub { $self->verbose(1) },
+        'quiet' => sub { $self->quiet(1) },
+        'list' => sub { $self->action('list') },
         'update' => sub { $self->action('update') },
         'status' => sub { $self->action('status') },
-        'list' => sub { $self->action('list') },
-        'file=s' => sub { $self->file($_[1]) },
+        'show=s' => sub { $self->action('show'); $self->show($_[1]) },
+        'all' => sub { $self->all(1) },
         'tags=s' => sub {
             my $tags = $_[1] or return;
             push @{$self->tags}, [split ',', $tags];
         },
-        'all' => sub { $self->all(1) },
-        'quiet' => sub { $self->quiet(1) },
-        'verbose' => sub { $self->verbose(1) },
         'help' => \&help,
     );
     no warnings;
-    my $names = [
-        map {
-            s!/$!!;
-            if (/^(\d+)-(\d+)?$/) {
-                ($1..$2);
-            }
-            else {
-                ($_);
-            }
-        } @ARGV
-    ];
+    my $names;
+    if (1 or not -t stdin) {
+        $names = [
+            map {
+                s!/$!!;
+                if (/^(\d+)-(\d+)?$/) {
+                    ($1..$2);
+                }
+                else {
+                    ($_);
+                }
+            } @ARGV
+        ];
+    }
+    else {
+        $names = [ split /\s+/, do {local $/; <stdin>} ]
+    }
     $self->names($names);
     die "Can't locate aybabtu config file '${\ $self->file}'. Use --file=... option\n"
         if not -e $self->file;
@@ -129,7 +137,7 @@ sub read_config {
         $set->{$type} = 1;
         delete $set->{''};
 
-        $entry->{tags} = [ sort keys %$set ];
+        $entry->{tags} = [ sort map lc, keys %$set ];
     }
 }
 
@@ -199,6 +207,31 @@ sub action_list {
     $quiet = $name;
     $normal = sprintf " %-25s %-4s %-50s", $name, $type, $repo;
     $verbose = "$normal\n    tags: @$tags";
+}
+
+sub action_show {
+    my $self = shift;
+    my $entry = shift;
+    my $show = $self->show;
+    $prefix = '';
+    if ($show =~ /^(nums?|numbers?)$/) {
+        $quiet = $entry->{_num};
+    }
+    elsif ($show =~ /^names?$/) {
+        $quiet = $entry->{name};
+    }
+    elsif ($show =~ /^tags?$/) {
+        my $set = {};
+        for my $repo (@{$self->repos}) {
+            $set->{$_} = 1 for @{$repo->{tags}};
+        }
+        my @tags = sort keys %$set;
+        print "@tags\n";
+        exit;
+    }
+    else {
+        $error = "Invalid type '$show' to show.";
+    }
 }
 
 sub _check {
@@ -282,26 +315,32 @@ sub git_status {
 }
 
 sub help {
-    print STDOUT <<'...';
+    print <<'...';
 Usage:
-    aycabtu [ options ] [ names ]
+    aycabtu [ options ] action selectors
     
 Options:
-    --file=file         # aycabtu config file. Default: 'AYCABTU'
+    --file=file     # aycabtu config file. Default: 'AYCABTU'
+    --verbose       # Show more information
+    --quiet         # Show less information
 
-    [--update | --status | --list]   # Action. Default: 'update'
-        update          # Checkout or update the selected repos
-        status          # Get status info on the selected repos
-        list            # List the selected repos
+Action:
+    --list          # List the selected repos (default action)
+    --update        # Checkout or update the selected repos
+    --status        # Get status info on the selected repos
+    --show=aspect   # Show some aspect of the selected repos
 
-    --all               # Use all the repos in the config file
-    --tags=tags         # Select repos matching all the tags
-                        # Option can be used more than once
+Show Aspects:
+    numbers         # Show the numbers of the selected repos
+    names           # Show the numbers of the selected repos
+    tags            # Show ALL tags of selected repos
 
-Names:
-
-    A list of the names to to select. You can use multiple names and
-    file globbing, like this:
+Selector:
+    --all           # Use all the repos in the config file
+    --tags=tags     # Select repos matching all the tags
+                      Can be used more than once
+    names           # A list of the names to to select. You can use
+                    # multiple names and file globbing, like this:
 
         aycabtu --update foo-repo bar-*-repo
 

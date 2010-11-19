@@ -2,7 +2,7 @@ package App::AYCABTU;
 use App::AYCABTU::OO -base;
 use 5.008003;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use Getopt::Long;
 use YAML::XS;
@@ -89,12 +89,25 @@ sub get_options {
     }
     $self->names($names);
     die "Can't locate aybabtu config file '${\ $self->file}'. Use --file=... option\n"
-        if not -e $self->file;
+        if not -e $self->file and not @{[glob $self->file . '*']};
+}
+
+sub read_yaml {
+    my $self = shift;
+    my @files = glob($self->file . '*');
+    my $yaml = '';
+    local $/;
+    for my $file (@files) {
+        open Y, $file;
+        $yaml .= <Y>;
+    }
+    return $yaml;
 }
 
 sub read_config {
     my $self = shift;
-    my $config = YAML::XS::LoadFile($self->file);
+    my $yaml = $self->read_yaml();
+    my $config = YAML::XS::Load($yaml);
     $self->config($config);
     die $self->file . " must be a YAML sequence of mapping"
         if (ref($config) ne 'ARRAY') or grep {

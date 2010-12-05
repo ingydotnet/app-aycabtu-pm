@@ -287,9 +287,13 @@ sub git_update {
         }
     }
     elsif (-d "$name/.git") {
-        my ($o, $e) = capture { system("cd $name; git pull") };
+        my ($o, $e) = capture { system("cd $name; git pull origin master") };
         if ($o eq "Already up-to-date.\n") {
             $normal = "Already up to date";
+        }
+        elsif ($e) {
+            $quiet = "Failed";
+            $verbose = "\n$o$e";
         }
         else {
             $quiet = "Updated";

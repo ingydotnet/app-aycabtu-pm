@@ -26,7 +26,10 @@ my ($prefix, $error, $quiet, $normal, $verbose);
 
 sub run {
     my $self = shift;
-    $self->get_options(@_);
+    my @opts = @_
+        ? @_
+        : split /\s+/, ($ENV{AYCABTU_DEFAULT_OPTS} || '');
+    $self->get_options(@opts);
     $self->read_config();
     $self->select_repos();
     if (not @{$self->repos}) {
@@ -54,6 +57,7 @@ sub run {
 
 sub get_options {
     my $self = shift;
+    local @ARGV = @_;
     GetOptions(
         'file=s' => sub { $self->file($_[1]) },
         'verbose' => sub { $self->verbose(1) },

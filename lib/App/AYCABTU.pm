@@ -32,7 +32,7 @@ sub run {
     $self->get_options(@opts);
     $self->read_config();
     $self->select_repos();
-    if (not @{$self->repos}) {
+    if (not @{$self->repos} and not @{$self->names}) {
         print "No repositories selected. Try --all.\n";
         return;
     }
@@ -52,6 +52,9 @@ sub run {
             $normal;
         $msg = "$prefix$msg\n" if $msg;
         print $msg;
+    }
+    if (@{$self->names}) {
+        warn "The following names were not found: @{$self->names}\n";
     }
 }
 
@@ -81,6 +84,9 @@ sub get_options {
                 s!/$!!;
                 if (/^(\d+)-(\d+)?$/) {
                     ($1..$2);
+                }
+                elsif (not -d) {
+                    ();
                 }
                 else {
                     ($_);
@@ -180,6 +186,7 @@ OUTER:
         if (@$names) {
             if (grep {$_ eq $name or $_ eq $num} @$names) {
                 push @$repos, $entry;
+                @$names = grep {$_ ne $name} @$names;
                 next;
             }
         }

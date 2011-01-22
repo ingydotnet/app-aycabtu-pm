@@ -1,4 +1,9 @@
 ---
+version: 0.04
+date:    
+changes:
+- Allow single numbers for selection
+---
 version: 0.03
 date:    Thu Nov 18 22:31:39 PST 2010
 changes:

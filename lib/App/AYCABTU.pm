@@ -82,15 +82,10 @@ sub get_options {
         $names = [
             map {
                 s!/$!!;
-                if (/^(\d+)-(\d+)?$/) {
-                    ($1..$2);
-                }
-                elsif (not -d) {
-                    ();
-                }
-                else {
-                    ($_);
-                }
+                /^(\d+)-(\d+)?$/ ? ($1..$2) :
+                /^(\d+)$/ ? ($1) :
+                (-d) ? ($_) :
+                ();
             } @ARGV
         ];
     }
@@ -186,7 +181,7 @@ OUTER:
         if (@$names) {
             if (grep {$_ eq $name or $_ eq $num} @$names) {
                 push @$repos, $entry;
-                @$names = grep {$_ ne $name} @$names;
+                @$names = grep {$_ !~ /^(\Q$name\E|$num)$/} @$names;
                 next;
             }
         }

@@ -1,26 +1,26 @@
 package App::AYCABTU;
-use App::AYCABTU::OO -base;
 use 5.008003;
+use Mouse 0.93;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 use Getopt::Long;
-use YAML::XS;
-use Capture::Tiny 'capture';
+use YAML::XS 0.35;
+use Capture::Tiny 0.10 'capture';
 
-has config => [];
+has config => (is => 'ro', default => sub{[]});
 
-has file => 'AYCABTU';
-has action => 'list';
-has show => '';
-has tags => [];
-has names => [];
-has all => 0;
-has quiet => 0;
-has verbose => 0;
-has args => [];
+has file => (is => 'ro', default => 'AYCABTU');
+has action => (is => 'ro', default => 'list');
+has show => (is => 'ro', default => '');
+has tags => (is => 'ro', default => sub{[]});
+has names => (is => 'ro', default => sub{[]});
+has all => (is => 'ro', default => 0);
+has quiet => (is => 'ro', default => 0);
+has verbose => (is => 'ro', default => 0);
+has args => (is => 'ro', default => sub{[]});
 
-has repos => [];
+has repos => (is => 'ro', default => sub{[]});
 
 my ($prefix, $error, $quiet, $normal, $verbose);
 

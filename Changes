@@ -1,8 +1,9 @@
 ---
 version: 0.04
-date:    
+date:    Mon Jun  6 00:15:51 EST 2011
 changes:
 - Allow single numbers for selection
+- Switch to Module::Package and Mouse.
 ---
 version: 0.03
 date:    Thu Nov 18 22:31:39 PST 2010

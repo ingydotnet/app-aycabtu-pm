@@ -1,4 +1,9 @@
 ---
+version: 0.05
+date:    Sat Jul 26 22:04:46 PDT 2014
+changes:
+- Switch to Zilla-Dist
+---
 version: 0.04
 date:    Mon Jun  6 00:15:51 EST 2011
 changes:

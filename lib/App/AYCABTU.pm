@@ -1,8 +1,7 @@
 package App::AYCABTU;
-use 5.008003;
-use Mouse 0.93;
+our $VERSION = '0.05';
 
-our $VERSION = '0.04';
+use Mouse 0.93;
 
 use Getopt::Long;
 use YAML::XS 0.35;
@@ -93,7 +92,7 @@ sub get_options {
         $names = [ split /\s+/, do {local $/; <stdin>} ]
     }
     $self->names($names);
-    die "Can't locate aybabtu config file '${\ $self->file}'. Use --file=... option\n"
+    die "Can't locate aycabtu config file '${\ $self->file}'. Use --file=... option\n"
         if not -e $self->file and not @{[glob $self->file . '*']};
 }
 
@@ -341,7 +340,7 @@ sub help {
     print <<'...';
 Usage:
     aycabtu [ options ] action selectors
-    
+
 Options:
     --file=file     # aycabtu config file. Default: 'AYCABTU'
     --verbose       # Show more information
@@ -372,50 +371,3 @@ Selector:
 }
 
 1;
-
-=encoding utf8
-
-=head1 NAME
-
-App::AYCABTU - All Your Codes Are Belong To Us
-
-=head1 SYNOPSIS
-
-    > aycabtu --help
-
-=head1 DESCRIPTION
-
-This module installs a program called L<aycabtu>, that can be used to
-manage all of the code repositories that you are interested in.
-
-=head1 STATUS
-
-This is a very early release. Only a couple features are implemented,
-and somewhat poorly.
-
-See L<http://github.com/ingydotnet/aycabt-
-ingydotnet/blob/master/AYCABTU> for an example of how to
-configure AYCABTU.
-
-Stay tuned. Things should be much better soon.
-
-=head1 RESOURCES
-
-CPAN: L<http://search.cpan.org/dist/App-AYCABTU/>
-
-GitHub: L<http://github.com/ingydotnet/app-aycabtu-pm>
-
-=head1 AUTHOR
-
-Ingy döt Net <ingy@cpan.org>
-
-=head1 COPYRIGHT
-
-Copyright (c) 2010. Ingy döt Net
-
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
-
-See L<http://www.perl.com/perl/misc/Artistic.html>
-
-=cut

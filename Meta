@@ -1,12 +1,12 @@
 =meta: 0.0.1
 
 name: App-AYCABTU
-version: 0.05
+version: 0.06
 abstract: Get a hash of your current 'my' variables
 homepage: https://metacpan.org/release/app-aycabtu
 
 license: perl
-copyright: 2011-2014. Ingy döt Net.
+copyright: 2010-2014. Ingy döt Net.
 author:
   name: Ingy döt Net
   email: ingy@cpan.org

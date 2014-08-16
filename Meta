@@ -1,31 +1,28 @@
-=meta: 0.0.1
+=meta: 0.0.2
 
 name: App-AYCABTU
-version: 0.09
+version: 0.10
 abstract: Get a hash of your current 'my' variables
 homepage: https://metacpan.org/release/app-aycabtu
-
+language: perl
 license: perl
-copyright: 2010-2014. Ingy döt Net.
+copyright: 2010-2014
+
 author:
   name: Ingy döt Net
   email: ingy@cpan.org
+  homepage: http://ingy.net
   github: ingydotnet
   twitter: ingydotnet
   freenode: ingy
-  homepage: http://ingy.net
-
-requires:
-  perl: 5.8.1
-  Capture::Tiny: 0.10
-  Mouse: 0.93
-  YAML::XS: 0.35
 
 devel:
   git: https://github.com/ingydotnet/app-aycabtu-pm
   bug: https://github.com/ingydotnet/app-aycabtu-pm/issues
   irc: irc.freenode.net#pkg
 
-=travis:
-  type: perl
-  irc: irc.freenode.net#pkg
+requires:
+  perl: 5.8.1
+  Capture::Tiny: 0.10
+  Mouse: 0.93
+  YAML::XS: 0.35

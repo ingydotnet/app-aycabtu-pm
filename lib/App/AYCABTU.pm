@@ -1,5 +1,5 @@
 package App::AYCABTU;
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 use Mouse 0.93;
 

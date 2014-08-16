@@ -1,4 +1,9 @@
 ---
+version: 0.13
+date:    Sat Aug 16 15:46:02 PDT 2014
+changes:
+- Remove versions from module use
+---
 version: 0.12
 date:    Sat Aug 16 13:19:52 PDT 2014
 changes:

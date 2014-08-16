@@ -1,11 +1,11 @@
+use strict; use warnings;
 package App::AYCABTU;
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
-use Mouse 0.93;
-
+use Mouse;
 use Getopt::Long;
-use YAML::XS 0.35;
-use Capture::Tiny 0.10 'capture';
+use YAML::XS;
+use Capture::Tiny 'capture';
 
 has config => (is => 'ro', default => sub{[]});
 

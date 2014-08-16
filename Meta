@@ -1,7 +1,7 @@
 =meta: 0.0.2
 
 name: App-AYCABTU
-version: 0.11
+version: 0.12
 abstract: Get a hash of your current 'my' variables
 homepage: https://metacpan.org/release/App-AYCABTU
 language: perl

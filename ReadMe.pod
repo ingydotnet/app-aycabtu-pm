@@ -25,19 +25,25 @@ all of the code repositories that you are interested in.
 
 =head1 STATUS
 
-this is a very early release. Only a couple features are implemented, and
+This is a very early release. Only a couple features are implemented, and
 somewhat poorly.
-
-See L<http://github.com/ingydotnet/aycabt-ingydotnet/blob/master/AYCABTU> for
-an example of how to configure AYCABTU.
 
 Stay tuned. Things should be much better soon.
 
 =head1 RESOURCES
 
-CPAN: L<http://search.cpan.org/dist/App-AYCABTU/>
+=over
 
-GitHub: L<http://github.com/ingydotnet/app-aycabtu-pm>
+=item CPAN
+
+L<http://search.cpan.org/dist/App-AYCABTU/>
+
+=item GitHub
+
+L<http://github.com/ingydotnet/app-aycabtu-pm>
+
+
+=back
 
 =head1 AUTHOR
 

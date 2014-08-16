@@ -11,24 +11,20 @@ All Your Codes Are Belong To Us
 
 = Description
 
-This module installs a program called [aycabtu], that can be used to
-manage all of the code repositories that you are interested in.
+This module installs a program called [aycabtu], that can be used to manage all
+of the code repositories that you are interested in.
 
 = Status
 
-this is a very early release. Only a couple features are implemented,
-and somewhat poorly.
-
-See http://github.com/ingydotnet/aycabt-ingydotnet/blob/master/AYCABTU for an
-example of how to configure AYCABTU.
+This is a very early release. Only a couple features are implemented, and
+somewhat poorly.
 
 Stay tuned. Things should be much better soon.
 
 = Resources
 
-CPAN: [http://search.cpan.org/dist/App-AYCABTU/]
-
-GitHub: [http://github.com/ingydotnet/app-aycabtu-pm]
+- CPAN :: [http://search.cpan.org/dist/App-AYCABTU/]
+- GitHub :: [http://github.com/ingydotnet/app-aycabtu-pm]
 
 = Author
 
